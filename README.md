@@ -1,6 +1,13 @@
 # tomcat_jenkins_docker
 Dockerize a Web Application and added Jenkins support
 
+
+    Project is : Deploy sample.war file on tomcat and dispay web page "hello"
+    i.e Install Tomcat as base image
+        Add sample.war and server.xml into it.
+        From Jenkins , it builds the image and run that images as a container.
+        
+
 **Prerequisite :
 Need Ec2 (Ubuntu 16) Machine:
 Install Java 1.8
@@ -102,6 +109,114 @@ $sudo cat /var/lib/jenkins/secrets/initialAdminPassword
     **Click "Start using Jenkins" to visit the main Jenkins dashboard:
     
     ****At this point, Jenkins has been successfully installed.
+    
+    -------------------------------------------------------------------------
+    
+## Configure Jenkins Server
+
+1. Head over to Jenkins Dashboard –> Manage jenkins –> Manage Plugins.
+
+2. Under available tab, search for “Docker Plugin” and install it.
+
+3. Once installed, head over to jenkins Dashboard –> Manage jenkins –>Configure system.
+
+4. Under “Configure System”, if you scroll down, there will be a section named “cloud” at the last. There you can fill out the docker host parameters.
+
+5. Under docke,radd Docker Host URI = unix:///var/run/docker.sock
+6. Save changes.
+
+
+ ## Create a jenkin job 
+
+Go to Jenkin -> new item -> enter a job name -> select free style project -> click on ok 
+click on Created Job >> Configure
+Click on checkbox "This project is parameterized"
+
+    Name =IMAGE_NAME
+    Value = "put any string which will display as docker image"
+    
+Go into Buld section 
+**Execute shell
+
+    cd "path of the folder where you cloned or kept Docker file"
+    docker build -t ${IMAGE_NAME}:latest .
+    docker run -i -t -d -p 9090:9090 ${IMAGE_NAME} 
+    
+    Save and Apply
+    
+---------------------------------------------------------------------------------------------------------------
+
+
+Go to Ubuntu machine
+Clone this project.
+Go to /opt/tomcat_jenkins_docker/
+
+### hit following commands
+
+
+    $sudo chmod 666 server.xml
+    $sudo chmod 666 /var/run/docker.sock    
+    $sudo chmod 666 server.xml
+    $usermod -aG docker jenkins
+    
+### Restart terminal.
+
+## Go to jenikin and build a job.
+### Console output shows.
+    Building in workspace /var/lib/jenkins/workspace/tomcat demo
+    [tomcat demo] $ /bin/sh -xe /tmp/jenkins1256132220241435311.sh
+    + cd /opt/tomcatdemo
+    + docker build -t test:latest .
+    Sending build context to Docker daemon  16.38kB
+    
+    Step 1/6 : FROM tomcat:8.0.43-jre8
+     ---> 03fc9c4ee243
+    Step 2/6 : ADD WEB-INF/lib/sample.war /usr/local/tomcat/webapps/
+     ---> Using cache
+     ---> 764c453cdc9d
+    Step 3/6 : ADD server.xml /usr/local/tomcat/conf/
+     ---> b3007b849e84
+    Step 4/6 : EXPOSE 9090
+     ---> Running in 95ba104553ba
+    Removing intermediate container 95ba104553ba
+     ---> 8c13d6816006
+    Step 5/6 : CMD chmod +x /usr/local/tomcat/bin/catalina.sh
+     ---> Running in 3795b725d48c
+    Removing intermediate container 3795b725d48c
+     ---> 495d62d754e6
+    Step 6/6 : CMD ["catalina.sh", "run"]
+     ---> Running in bc49f0f0a533
+    Removing intermediate container bc49f0f0a533
+     ---> b17d1d5ea6e3
+    Successfully built b17d1d5ea6e3
+    Successfully tagged test:latest
+    + docker run -i -t -d -p 9090:9090 test
+    b11c0366563db355c28f6065f10b3e2dfdeff75b5de169a79a240cd59d5afab9
+    Finished: SUCCESS
+
+### Go to browser  and enter http://ipaddress:9090/sample
+### should show Sample "Hello, World" Application.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+
+
+
 
 
 
